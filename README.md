@@ -34,7 +34,6 @@ git remote add origin https://github.com/brihuaa/AgendaFLow
 git branch -M main
 git add .
 git commit -m "NOMBRE VERSION"
-git commit -m "Analiticas y Reseñas"
 
 git push origin main --force
 

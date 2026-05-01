@@ -31,8 +31,9 @@ export default function Registro() {
     <div className="auth-page">
       <div className="auth-box">
         <div className="auth-logo">
-          <div className="auth-logo-icon">📅</div>
-          <span className="auth-logo-text">AgendaFlow</span>
+          <div className="auth-logo-icon">
+            <img src="/agendaflow_logo.svg" alt="AgendaFlow"  />
+          </div>
         </div>
 
         <h2 className="auth-title">Crear cuenta</h2>

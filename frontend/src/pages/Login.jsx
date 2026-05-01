@@ -31,7 +31,7 @@ export default function Login() {
       <div className="auth-box">
         <div className="auth-logo">
           <div className="auth-logo-icon">
-            <img src="/agendaflow_logo.svg" alt="AgendaFlow" />
+            <img src="/agendaflow_logo.svg" alt="AgendaFlow"  />
           </div>
         </div>
 
@@ -79,8 +79,8 @@ export default function Login() {
         <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.8 }}>
           <strong style={{ color: 'var(--text-2)' }}>Cuentas de prueba</strong><br />
           admin@agendaflow.com · admin123<br />
-          ana@agendaflow.com · empleado123<br />
-          cliente@agendaflow.com · cliente123
+          sara@agendaflow.com · empleado123<br />
+          carlos@agendaflow.com · cliente123
         </div>
       </div>
     </div>
