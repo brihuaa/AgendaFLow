@@ -25,6 +25,7 @@ function formatFecha(f) {
 function TabReservas() {
   const [citas, setCitas] = useState([])
   const [filtro, setFiltro] = useState('todas')
+  const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState(null)
   const [actionId, setActionId] = useState(null)
@@ -38,67 +39,171 @@ function TabReservas() {
 
   useEffect(() => { load() }, [load])
 
-  const filtradas = filtro === 'todas' ? citas : citas.filter(c => c.estado === filtro)
-  const counts = { total: citas.length, confirmada: citas.filter(c => c.estado === 'confirmada').length, completada: citas.filter(c => c.estado === 'completada').length }
+  const byEstado = filtro === 'todas' ? citas : citas.filter(c => c.estado === filtro)
+  const filtradas = busqueda.trim()
+    ? byEstado.filter(c =>
+        [c.cliente_nombre, c.empleado_nombre, c.servicio_nombre]
+          .join(' ').toLowerCase().includes(busqueda.toLowerCase())
+      )
+    : byEstado
+
+  const counts = {
+    total: citas.length,
+    confirmada: citas.filter(c => c.estado === 'confirmada').length,
+    completada: citas.filter(c => c.estado === 'completada').length,
+    cancelada: citas.filter(c => c.estado === 'cancelada').length,
+  }
 
   const action = async (id, endpoint) => {
     setActionId(id)
     try {
       await api.patch(`/citas/${id}/${endpoint}`)
-      setMsg({ type: 'success', text: `Cita ${endpoint === 'completar' ? 'completada' : 'cancelada'}` })
+      setMsg({ type: 'success', text: `Cita ${endpoint === 'completar' ? 'marcada como completada' : 'cancelada'}` })
       await load()
     } catch (e) {
       setMsg({ type: 'error', text: e.response?.data?.error || 'Error' })
     } finally { setActionId(null) }
   }
 
+  // Calculamos ingresos solo de completadas
+  const ingresoTotal = citas
+    .filter(c => c.estado === 'completada')
+    .reduce((acc, c) => acc + (parseFloat(c.servicio_precio) || 0), 0)
+
   return (
     <div>
       <Alert msg={msg} onClose={() => setMsg(null)} />
+
+      {/* KPIs */}
       <div className="stats-row" style={{ marginBottom: 20 }}>
-        <div className="stat-card"><div className="stat-num">{counts.total}</div><div className="stat-label">Total</div></div>
-        <div className="stat-card"><div className="stat-num" style={{ color: 'var(--info)' }}>{counts.confirmada}</div><div className="stat-label">Confirmadas</div></div>
-        <div className="stat-card"><div className="stat-num" style={{ color: 'var(--success)' }}>{counts.completada}</div><div className="stat-label">Completadas</div></div>
+        <div className="stat-card">
+          <div className="stat-num">{counts.total}</div>
+          <div className="stat-label">Total citas</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: 'var(--info)' }}>{counts.confirmada}</div>
+          <div className="stat-label">Confirmadas</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: 'var(--success)' }}>{counts.completada}</div>
+          <div className="stat-label">Completadas</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: 'var(--danger)' }}>{counts.cancelada}</div>
+          <div className="stat-label">Canceladas</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: 'var(--success)', fontSize: 18 }}>{ingresoTotal.toFixed(0)}€</div>
+          <div className="stat-label">Ingresos completados</div>
+        </div>
       </div>
 
-      <div className="filter-row">
-        {['todas', 'confirmada', 'completada', 'cancelada'].map(e => (
-          <button key={e} className={`filter-btn ${filtro === e ? 'active' : ''}`} onClick={() => setFiltro(e)}>
-            {e === 'todas' ? 'Todas' : e.charAt(0).toUpperCase() + e.slice(1)}
-          </button>
-        ))}
+      {/* Filtros + búsqueda */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="filter-row" style={{ margin: 0 }}>
+          {['todas', 'confirmada', 'completada', 'cancelada'].map(e => (
+            <button key={e} className={`filter-btn ${filtro === e ? 'active' : ''}`} onClick={() => setFiltro(e)}>
+              {e === 'todas' ? 'Todas' : e.charAt(0).toUpperCase() + e.slice(1)}
+            </button>
+          ))}
+        </div>
+        <input
+          className="form-control"
+          placeholder="Buscar cliente, empleado o servicio…"
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          style={{ maxWidth: 280 }}
+        />
+        {busqueda && (
+          <button className="btn btn-secondary btn-sm" onClick={() => setBusqueda('')}>Limpiar</button>
+        )}
+        <span style={{ color: 'var(--text-muted)', fontSize: 13, marginLeft: 'auto' }}>
+          {filtradas.length} resultado{filtradas.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
-      {loading ? <div className="loading-center"><div className="spinner" style={{ width: 32, height: 32 }} /></div> : (
-        filtradas.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📅</div><div className="empty-title">No hay citas</div></div>
-        ) : (
-          <div className="table-wrapper">
-            <table>
-              <thead><tr><th>Fecha</th><th>Servicio</th><th>Cliente</th><th>Empleado</th><th>Estado</th><th>Acciones</th></tr></thead>
-              <tbody>
-                {filtradas.map(c => (
-                  <tr key={c.id}>
-                    <td className="td-bold">{formatFecha(c.fecha)} <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{c.hora_inicio}</span></td>
-                    <td>{c.servicio_nombre}</td>
-                    <td>{c.cliente_nombre}</td>
-                    <td>{c.empleado_nombre}</td>
-                    <td><span className={`badge badge-${c.estado}`}>{c.estado}</span></td>
-                    <td>
-                      {c.estado === 'confirmada' && (
-                        <span style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-success btn-sm" onClick={() => action(c.id, 'completar')} disabled={actionId === c.id}>✓</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => action(c.id, 'cancelar')} disabled={actionId === c.id}>✗</button>
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
+      {loading ? (
+        <div className="loading-center"><div className="spinner" style={{ width: 32, height: 32 }} /></div>
+      ) : filtradas.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">📅</div>
+          <div className="empty-title">No hay citas</div>
+          <div className="empty-sub">{busqueda ? 'No coincide con tu búsqueda.' : 'No hay citas en este estado.'}</div>
+        </div>
+      ) : (
+        <div className="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Horario</th>
+                <th>Servicio</th>
+                <th>Duración</th>
+                <th>Cliente</th>
+                <th>Empleado/a</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtradas.map(c => (
+                <tr key={c.id}>
+                  <td className="td-bold" style={{ whiteSpace: 'nowrap' }}>
+                    {formatFecha(c.fecha)}
+                  </td>
+                  <td style={{ color: 'var(--text-2)', whiteSpace: 'nowrap', fontSize: 13 }}>
+                    {c.hora_inicio} – {c.hora_fin}
+                  </td>
+                  <td className="td-bold">{c.servicio_nombre}</td>
+                  <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>
+                    {c.duracion_min} min
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="emp-avatar" style={{ width: 26, height: 26, fontSize: 10, flexShrink: 0 }}>
+                        {(c.cliente_nombre || '?')[0]}
+                      </div>
+                      <span style={{ fontSize: 13 }}>{c.cliente_nombre}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="emp-avatar" style={{ width: 26, height: 26, fontSize: 10, flexShrink: 0, background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                        {(c.empleado_nombre || '?')[0]}
+                      </div>
+                      <span style={{ fontSize: 13 }}>{c.empleado_nombre}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: 'var(--accent)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    {parseFloat(c.servicio_precio).toFixed(2)}€
+                  </td>
+                  <td>
+                    <span className={`badge badge-${c.estado}`}>{c.estado}</span>
+                  </td>
+                  <td>
+                    {c.estado === 'confirmada' && (
+                      <span style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() => action(c.id, 'completar')}
+                          disabled={actionId === c.id}
+                          title="Marcar como completada"
+                        >✓</button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => action(c.id, 'cancelar')}
+                          disabled={actionId === c.id}
+                          title="Cancelar cita"
+                        >✗</button>
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
@@ -163,7 +268,6 @@ function TabServicios() {
     <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 24, alignItems: 'start' }}>
       <div className="card">
         <div className="card-title">{editing ? '✏️ Editar servicio' : '➕ Nuevo servicio'}</div>
-        <Alert msg={null} onClose={() => {}} />
         <form onSubmit={submit}>
           <div className="form-group">
             <label>Nombre</label>

@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import api from '../api/client'
+import { Fragment } from 'react'
 
 const RANGOS = [
   { value: 'hoy', label: 'Hoy' },
@@ -14,32 +15,76 @@ const RANGOS = [
   { value: 'personalizado', label: 'Personalizado' },
 ]
 
-// Mini barra horizontal para las gráficas inline
 function BarChart({ data, valueKey, labelKey, color = 'var(--accent)', unit = '' }) {
   if (!data || data.length === 0) return null
+
   const max = Math.max(...data.map(d => d[valueKey]), 0.01)
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {data.map((d, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 110, fontSize: 12, color: 'var(--text-2)', textAlign: 'right', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {d[labelKey]}
-          </div>
-          <div style={{ flex: 1, background: 'var(--bg-card-2)', borderRadius: 4, height: 22, position: 'relative', overflow: 'hidden' }}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'flex-end',
+      justifyContent: 'space-around',
+      height: 220,
+      gap: 20,
+      padding: '10px 0'
+    }}>
+      {data.map((d, i) => {
+        const height = (d[valueKey] / max) * 100
+
+        return (
+          <div key={i} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            flex: 1
+          }}>
+            {/* Valor arriba */}
             <div style={{
-              width: `${(d[valueKey] / max) * 100}%`,
-              height: '100%',
-              background: color,
-              borderRadius: 4,
-              transition: 'width 0.4s ease',
-              minWidth: d[valueKey] > 0 ? 4 : 0,
-            }} />
-            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: 'var(--text)', fontWeight: 600 }}>
+              fontSize: 12,
+              fontWeight: 600,
+              marginBottom: 6,
+              color: 'var(--text)'
+            }}>
               {d[valueKey]}{unit}
-            </span>
+            </div>
+
+            {/* Barra */}
+            <div style={{
+              width: '100%',
+              maxWidth: 40,
+              height: 160,
+              background: 'var(--bg-card-2)',
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'flex-end',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: '100%',
+                height: `${height}%`,
+                background: color,
+                borderRadius: 6,
+                transition: 'height 0.4s ease'
+              }} />
+            </div>
+
+            {/* Label abajo */}
+            <div style={{
+              marginTop: 8,
+              fontSize: 12,
+              color: 'var(--text-2)',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 60
+            }}>
+              {d[labelKey]}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
