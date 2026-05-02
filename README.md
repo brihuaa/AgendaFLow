@@ -257,8 +257,8 @@ AgendaFlow_improved/
 │  │  └─ components/
 │  │     ├─ Navbar.jsx
 │  │     ├─ DashboardAdmin.jsx
-│  │     ├─ TabAnalitica.jsx   → [módulo opcional]
-│  │     └─ ReviewButton.jsx   → [módulo opcional]
+│  │     ├─ TabAnalitica.jsx   
+│  │     └─ ReviewButton.jsx   
 │  └─ index.html
 │
 └─ package.json                → Scripts de instalación
