@@ -432,28 +432,24 @@ export default function DashboardAdmin() {
           value={citasHoyConf.length}
           sub={`${canceladasHoy} cancelada${canceladasHoy !== 1 ? 's' : ''}`}
           color="var(--info)"
-          icon="📅"
         />
         <KpiCard
           label="Esta semana"
           value={totalSemana}
           sub="confirmadas"
           color="var(--accent)"
-          icon="📆"
         />
         <KpiCard
           label={`Ingresos ${new Date().toLocaleDateString('es-ES', { month: 'long' })}`}
           value={`${ingresosMes.toFixed(0)}€`}
           sub="citas completadas"
           color="var(--success)"
-          icon="💰"
         />
         <KpiCard
           label="Próxima cita"
           value={proximaHoy ? formatHora(proximaHoy.hora_inicio) : '—'}
           sub={proximaHoy ? `${proximaHoy.cliente_nombre?.split(' ')[0]} · ${proximaHoy.servicio_nombre}` : 'Sin más citas hoy'}
           color="var(--warning)"
-          icon="⏱"
         />
       </div>
 

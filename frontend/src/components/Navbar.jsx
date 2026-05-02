@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 // SVG icon inline (cuadrado violeta + flecha de flujo)
 function AgendaFlowIcon({ size = 28 }) {
@@ -19,6 +20,7 @@ function AgendaFlowIcon({ size = 28 }) {
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { theme, toggle } = useTheme()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -40,6 +42,9 @@ export default function Navbar() {
           <span>{user?.nombre} {user?.apellidos}</span>
           <span className={`role-badge ${user?.rol}`}>{user?.rol}</span>
         </div>
+        <button className="btn btn-secondary btn-sm" onClick={toggle} title="Cambiar tema">
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
           Salir
         </button>

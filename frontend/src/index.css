@@ -37,6 +37,28 @@ body {
 
 }
 
+body.light {
+  background-color: #f0eeff;
+  background-image: url('agendaflow_background_clear.svg');
+}
+
+body.light {
+  --bg: #f0eeff;
+  --bg-2: #e8e5ff;
+  --bg-card: #ffffff;
+  --bg-card-2: #f5f3ff;
+  --bg-input: #ece9ff;
+  --border: #c8c0f0;
+  --border-hover: #9080e0;
+  --accent: #6c63ff;
+  --accent-hover: #5a52d0;
+  --accent-light: rgba(108, 99, 255, 0.12);
+  --text: #1a1040;
+  --text-2: #4a4080;
+  --text-muted: #8070b8;
+  --shadow: 0 4px 24px rgba(108,99,255,0.10);
+}
+
 .icon {
   opacity: 0.2;
 }
