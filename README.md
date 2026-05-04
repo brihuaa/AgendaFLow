@@ -464,34 +464,6 @@ sequenceDiagram
 
 ---
 
-## Mejoras Futuras (Roadmap)
-
-### Corto Plazo (MVP+)
-- [ ] **Notificaciones por email** — confirmación + recordatorio 24h antes
-- [ ] **Perfil editable** — cliente/empleado edita nombre, teléfono, foto
-- [ ] **Dashboard KPI** — panel inicial admin con métricas del día
-- [ ] **Exportar a CSV** — citas, ingresos filtrados por período
-
-### Medio Plazo
-- [ ] **Notificaciones SMS** — recordatorios vía Twilio
-- [ ] **Calendario visual** — vista cuadrícula semanal con huecos disponibles
-- [ ] **Gestión de clientes** — búsqueda, historial individual, notas
-- [ ] **Días festivos** — bloquear fechas específicas
-- [ ] **Modo oscuro** — toggle manual + tema por defecto
-
-### Largo Plazo
-- [ ] **Capacidad múltiple** — un servicio con 2+ empleados en paralelo
-- [ ] **WebSockets** — actualización en vivo de reservas (sin F5)
-- [ ] **PWA** — instalable en móvil, notificaciones push nativas
-- [ ] **Internacionalización (i18n)** — soporte para ES, EN, PT...
-- [ ] **Docker Compose** — despliegue con 1 comando
-- [ ] **PostgreSQL** — escalabilidad para múltiples locales
-- [ ] **Tests automatizados** — Vitest + Jest + E2E
-- [ ] **Facturación** — generar recibos en PDF
-
-
----
-
 ## Para Desarrolladores
 
 ### Contribuir
