@@ -416,7 +416,7 @@ sequenceDiagram
     API->>DB: SELECT servicios
     
     Cliente->>App: Elige servicio
-    App->>API: GET /citas?empleado=X&fecha=Y
+    App->>API: GET /citas?empleado=X,fecha=Y
     API->>DB: SELECT citas (buscar hueco)
     
     Cliente->>App: Confirma fecha/hora
